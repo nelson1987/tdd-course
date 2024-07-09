@@ -6,14 +6,40 @@ namespace Manager.Api.Controllers;
 [Route("[controller]")]
 public class AccountsController : ControllerBase
 {
-    [HttpPost]
-    public IActionResult Post([FromBody] Request request)
-    {
-        if (string.IsNullOrEmpty(request.Description))
-            return StatusCode(400, "Description is required");
+    private readonly IAccountRepository _accountRepository;
 
-        return StatusCode(201);
+    public AccountsController(IAccountRepository accountRepository)
+    {
+        _accountRepository = accountRepository;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Post([FromBody] CreateAccountRequest request)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(request.Description))
+                return StatusCode(400, "Description is required");
+
+            await _accountRepository.Insert(new Account());
+
+            return StatusCode(201);
+        }
+        catch (Exception)
+        {
+            return StatusCode(400, "Tente novamente mais tarde");
+        }
     }
 }
 
-public record Request(string Description);
+public record CreateAccountRequest(string Description);
+
+public class Account
+{
+    public string Description { get; set; }
+}
+
+public interface IAccountRepository
+{
+    Task<Account> Insert(Account account);
+}
