@@ -1,7 +1,16 @@
+using Manager.Api.Controllers;
+
 namespace Manager.Tests.UnitTests;
 
 public class AccountsControllerTests
 {
+    private readonly AccountsController _sut;
+
+    public AccountsControllerTests()
+    {
+        _sut = new AccountsController();
+    }
+
     [Fact]
     public void Given_When_Then()
     {
