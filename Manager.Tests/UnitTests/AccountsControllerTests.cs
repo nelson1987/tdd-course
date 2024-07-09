@@ -21,14 +21,14 @@ public class AccountsControllerTests
     [Fact]
     public void Dado_Requisicao_Get_When_Request_Valido_Then_Retorna_Ok()
     {
-        var retorno = (StatusCodeResult)_sut.Get();
+        var retorno = (StatusCodeResult)_sut.Post();
         Assert.Equal((int)HttpStatusCode.OK, retorno.StatusCode);
     }
 
     [Fact]
     public void Dado_Requisicao_Get_When_Request_Invalido_Then_Retorna_BadRequest()
     {
-        var retorno = (StatusCodeResult)_sut.Get();
+        var retorno = (StatusCodeResult)_sut.Post();
         Assert.NotEqual((int)HttpStatusCode.BadRequest, retorno.StatusCode);
     }
 }

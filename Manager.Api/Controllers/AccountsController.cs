@@ -6,8 +6,8 @@ namespace Manager.Api.Controllers;
 [Route("[controller]")]
 public class AccountsController : ControllerBase
 {
-    [HttpGet]
-    public IActionResult Get()
+    [HttpPost]
+    public IActionResult Post()
     {
         return Ok();
     }
