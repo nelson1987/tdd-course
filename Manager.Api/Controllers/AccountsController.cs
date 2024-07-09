@@ -7,8 +7,13 @@ namespace Manager.Api.Controllers;
 public class AccountsController : ControllerBase
 {
     [HttpPost]
-    public IActionResult Post()
+    public IActionResult Post([FromBody] Request request)
     {
-        return Ok();
+        if (string.IsNullOrEmpty(request.Description))
+            return StatusCode(400, "Description is required");
+
+        return StatusCode(201);
     }
 }
+
+public record Request(string Description);

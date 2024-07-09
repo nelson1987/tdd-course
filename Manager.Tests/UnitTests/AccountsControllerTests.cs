@@ -7,10 +7,12 @@ namespace Manager.Tests.UnitTests;
 public class AccountsControllerTests
 {
     private readonly AccountsController _sut;
+    private readonly Request _request;
 
     public AccountsControllerTests()
     {
         _sut = new AccountsController();
+        _request = new Request("Conta criada com sucesso");
     }
 
     [Fact]
@@ -21,14 +23,15 @@ public class AccountsControllerTests
     [Fact]
     public void Given_Requisicao_Post_When_Request_Valido_Then_Retorna_Created()
     {
-        var retorno = (StatusCodeResult)_sut.Post();
+        var retorno = (StatusCodeResult)_sut.Post(_request);
         Assert.Equal((int)HttpStatusCode.Created, retorno.StatusCode);
     }
 
     [Fact]
     public void Given_Requisicao_Post_When_Request_Invalido_Then_Retorna_BadRequest()
     {
-        var retorno = (StatusCodeResult)_sut.Post();
-        Assert.NotEqual((int)HttpStatusCode.BadRequest, retorno.StatusCode);
+        var request = _request with { Description = string.Empty };
+        var retorno = (ObjectResult)_sut.Post(request);
+        Assert.Equal((int)HttpStatusCode.BadRequest, retorno.StatusCode);
     }
 }
