@@ -19,14 +19,14 @@ public class AccountsControllerTests
     }
 
     [Fact]
-    public void Dado_Requisicao_Post_When_Request_Valido_Then_Retorna_Created()
+    public void Given_Requisicao_Post_When_Request_Valido_Then_Retorna_Created()
     {
         var retorno = (StatusCodeResult)_sut.Post();
         Assert.Equal((int)HttpStatusCode.Created, retorno.StatusCode);
     }
 
     [Fact]
-    public void Dado_Requisicao_Post_When_Request_Invalido_Then_Retorna_BadRequest()
+    public void Given_Requisicao_Post_When_Request_Invalido_Then_Retorna_BadRequest()
     {
         var retorno = (StatusCodeResult)_sut.Post();
         Assert.NotEqual((int)HttpStatusCode.BadRequest, retorno.StatusCode);
