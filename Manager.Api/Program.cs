@@ -1,4 +1,4 @@
-using Manager.Api.Controllers;
+using Manager.Api.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();

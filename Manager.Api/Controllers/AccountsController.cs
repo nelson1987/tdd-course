@@ -1,3 +1,4 @@
+using Manager.Api.Features;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Manager.Api.Controllers;
@@ -31,35 +32,5 @@ public class AccountsController : ControllerBase
         {
             return StatusCode(400, "Tente novamente mais tarde");
         }
-    }
-}
-
-public record CreateAccountRequest(string? Description);
-
-public class Account
-{
-    public int Id { get; set; }
-    public string? Description { get; set; }
-}
-
-public static class Dependencies
-{
-    public static IServiceCollection AddRepositories(this IServiceCollection services)
-    {
-        services.AddScoped<IAccountRepository, AccountRepository>();
-        return services;
-    }
-}
-
-public interface IAccountRepository
-{
-    Task<Account> Insert(Account account);
-}
-
-public class AccountRepository : IAccountRepository
-{
-    public Task<Account> Insert(Account account)
-    {
-        return Task.FromResult(account);
     }
 }

@@ -1,6 +1,7 @@
 using AutoFixture;
 using FluentAssertions;
 using Manager.Api.Controllers;
+using Manager.Api.Features;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Net;

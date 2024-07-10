@@ -1,6 +1,6 @@
 using AutoFixture;
 using FluentAssertions;
-using Manager.Api.Controllers;
+using Manager.Api.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;

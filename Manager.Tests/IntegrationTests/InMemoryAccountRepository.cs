@@ -1,4 +1,4 @@
-﻿using Manager.Api.Controllers;
+﻿using Manager.Api.Features;
 
 namespace Manager.Tests.IntegrationTests;
 
