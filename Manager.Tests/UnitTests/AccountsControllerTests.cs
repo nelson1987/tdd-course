@@ -45,7 +45,7 @@ public class AccountsControllerTests
         // Assert
         var statusCodeResult = retorno as StatusCodeResult;
         Assert.NotNull(statusCodeResult);
-        Assert.Equal((int)HttpStatusCode.Created, retorno.StatusCode);
+        Assert.Equal((int)HttpStatusCode.Created, statusCodeResult.StatusCode);
     }
 
     [Fact]
@@ -54,9 +54,11 @@ public class AccountsControllerTests
         // Arrange
         var request = _request with { Description = string.Empty };
         // Act
-        var retorno = (ObjectResult)await _sut.Post(request);
+        var retorno = await _sut.Post(request);
         // Assert
-        Assert.Equal((int)HttpStatusCode.BadRequest, retorno.StatusCode);
+        var statusCodeResult = retorno as ObjectResult;
+        Assert.NotNull(statusCodeResult);
+        Assert.Equal((int)HttpStatusCode.BadRequest, statusCodeResult.StatusCode);
     }
 
     [Fact]
@@ -67,7 +69,7 @@ public class AccountsControllerTests
         // Act
         var result = await _sut.Post(request);
         // Assert
-        var statusCodeResult = result as StatusCodeResult;
+        var statusCodeResult = result as ObjectResult;
         Assert.NotNull(statusCodeResult);
         Assert.Equal(400, statusCodeResult.StatusCode);
     }
@@ -80,7 +82,7 @@ public class AccountsControllerTests
         // Act
         var result = await _sut.Post(request);
         // Assert
-        var statusCodeResult = result as StatusCodeResult;
+        var statusCodeResult = result as ObjectResult;
         Assert.NotNull(statusCodeResult);
         Assert.Equal(400, statusCodeResult.StatusCode);
     }
@@ -93,9 +95,11 @@ public class AccountsControllerTests
             .Setup(x => x.Insert(It.IsAny<Account>()))
             .Throws(new Exception("Exception"));
         // Act
-        var retorno = (ObjectResult)await _sut.Post(_request);
+        var result = await _sut.Post(_request);
         // Assert
-        Assert.Equal((int)HttpStatusCode.BadRequest, retorno.StatusCode);
+        var statusCodeResult = result as ObjectResult;
+        Assert.NotNull(statusCodeResult);
+        Assert.Equal((int)HttpStatusCode.BadRequest, statusCodeResult.StatusCode);
     }
 
     [Fact]
@@ -105,13 +109,11 @@ public class AccountsControllerTests
         _fixture.Freeze<Mock<IAccountRepository>>()
             .Setup(repo => repo.Insert(It.IsAny<Account>()))
             .ThrowsAsync(new Exception());
-        var request = new CreateAccountRequest("Valid Description");
         // Act
-        var result = await _sut.Post(request);
+        var result = await _sut.Post(_request);
         // Assert
-        var statusCodeResult = result as StatusCodeResult;
+        var statusCodeResult = result as ObjectResult;
         Assert.NotNull(statusCodeResult);
         Assert.Equal(400, statusCodeResult.StatusCode);
     }
-
 }
