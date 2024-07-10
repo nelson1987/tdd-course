@@ -7,13 +7,13 @@ using System.Net;
 
 namespace Manager.Tests.UnitTests;
 
-public class AccountsControllerTests
+public class AccountsControllerUnitTests
 {
     private readonly IFixture _fixture = new Fixture().Customize(new AutoMoqCustomization());
     private readonly AccountsController _sut;
     private readonly CreateAccountRequest _request;
 
-    public AccountsControllerTests()
+    public AccountsControllerUnitTests()
     {
         _request = _fixture.Build<CreateAccountRequest>()
             .With(x => x.Description, "Conta criada com sucesso")
@@ -71,7 +71,7 @@ public class AccountsControllerTests
         // Assert
         var statusCodeResult = result as ObjectResult;
         Assert.NotNull(statusCodeResult);
-        Assert.Equal(400, statusCodeResult.StatusCode);
+        Assert.Equal((int)HttpStatusCode.BadRequest, statusCodeResult.StatusCode);
     }
 
     [Fact]
@@ -84,7 +84,7 @@ public class AccountsControllerTests
         // Assert
         var statusCodeResult = result as ObjectResult;
         Assert.NotNull(statusCodeResult);
-        Assert.Equal(400, statusCodeResult.StatusCode);
+        Assert.Equal((int)HttpStatusCode.BadRequest, statusCodeResult.StatusCode);
     }
 
     [Fact]
@@ -114,6 +114,6 @@ public class AccountsControllerTests
         // Assert
         var statusCodeResult = result as ObjectResult;
         Assert.NotNull(statusCodeResult);
-        Assert.Equal(400, statusCodeResult.StatusCode);
+        Assert.Equal((int)HttpStatusCode.BadRequest, statusCodeResult.StatusCode);
     }
 }

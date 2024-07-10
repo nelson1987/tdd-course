@@ -32,7 +32,7 @@ public class AccountsController : ControllerBase
     }
 }
 
-public record CreateAccountRequest(string Description);
+public record CreateAccountRequest(string? Description);
 
 public class Account
 {
