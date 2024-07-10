@@ -1,4 +1,6 @@
+using FluentAssertions;
 using Manager.Api.Controllers;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
@@ -26,8 +28,9 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         var response = await _client.PostAsync("/accounts", content);
         // Assert
         response.EnsureSuccessStatusCode();
-        Assert.NotNull(response);
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        response.Should().BeOfType<HttpResponseMessage>();
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
     }
 
     [Fact]
@@ -40,8 +43,9 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         var response = await _client.PostAsync("/accounts",
             new StringContent(jsonContent, Encoding.UTF8, "application/json"));
         // Assert
-        Assert.NotNull(response);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        response.Should().BeOfType<HttpResponseMessage>();
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -54,8 +58,9 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         var response = await _client.PostAsync("/accounts",
             new StringContent(jsonContent, Encoding.UTF8, "application/json"));
         // Assert
-        Assert.NotNull(response);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        response.Should().BeOfType<HttpResponseMessage>();
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -68,8 +73,9 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         var response = await _client.PostAsync("/accounts",
             new StringContent(jsonContent, Encoding.UTF8, "application/json"));
         // Assert
-        Assert.NotNull(response);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        response.Should().BeOfType<HttpResponseMessage>();
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -78,7 +84,7 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         var client = Server
             .WithWebHostBuilder(x =>
             {
-                x.ConfigureServices(services =>
+                x.ConfigureTestServices(services =>
                 {
                     services.RemoveAll<IAccountRepository>();
                     services.AddScoped<IAccountRepository, InMemoryAccountRepository>();
@@ -91,8 +97,9 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         var response = await client.PostAsync("/accounts",
             new StringContent(jsonContent, Encoding.UTF8, "application/json"));
         // Assert
-        Assert.NotNull(response);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        response.Should().BeOfType<HttpResponseMessage>();
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -102,7 +109,7 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         var client = Server
             .WithWebHostBuilder(x =>
             {
-                x.ConfigureServices(services =>
+                x.ConfigureTestServices(services =>
                 {
                     services.RemoveAll<IAccountRepository>();
                     services.AddScoped<IAccountRepository, InMemoryAccountRepository>();
@@ -114,7 +121,8 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         var response = await client.PostAsync("/accounts",
             new StringContent(jsonContent, Encoding.UTF8, "application/json"));
         // Assert
-        Assert.NotNull(response);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        response.Should().BeOfType<HttpResponseMessage>();
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }

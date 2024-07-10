@@ -1,5 +1,6 @@
 using AutoFixture;
 using AutoFixture.AutoMoq;
+using FluentAssertions;
 using Manager.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -41,11 +42,11 @@ public class AccountsControllerUnitTests
     public async Task Given_Requisicao_Post_When_Request_Valido_Then_Retorna_Created()
     {
         // Act
-        var retorno = await _sut.Post(_request);
+        var response = await _sut.Post(_request);
         // Assert
-        var statusCodeResult = retorno as StatusCodeResult;
-        Assert.NotNull(statusCodeResult);
-        Assert.Equal((int)HttpStatusCode.Created, statusCodeResult.StatusCode);
+        var result = response as StatusCodeResult;
+        result.Should().NotBeNull();
+        result!.StatusCode.Should().Be((int)HttpStatusCode.Created);
     }
 
     [Fact]
@@ -57,8 +58,8 @@ public class AccountsControllerUnitTests
         var retorno = await _sut.Post(request);
         // Assert
         var statusCodeResult = retorno as ObjectResult;
-        Assert.NotNull(statusCodeResult);
-        Assert.Equal((int)HttpStatusCode.BadRequest, statusCodeResult.StatusCode);
+        statusCodeResult.Should().NotBeNull();
+        statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -70,8 +71,8 @@ public class AccountsControllerUnitTests
         var result = await _sut.Post(request);
         // Assert
         var statusCodeResult = result as ObjectResult;
-        Assert.NotNull(statusCodeResult);
-        Assert.Equal((int)HttpStatusCode.BadRequest, statusCodeResult.StatusCode);
+        statusCodeResult.Should().NotBeNull();
+        statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -83,8 +84,8 @@ public class AccountsControllerUnitTests
         var result = await _sut.Post(request);
         // Assert
         var statusCodeResult = result as ObjectResult;
-        Assert.NotNull(statusCodeResult);
-        Assert.Equal((int)HttpStatusCode.BadRequest, statusCodeResult.StatusCode);
+        statusCodeResult.Should().NotBeNull();
+        statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -98,8 +99,8 @@ public class AccountsControllerUnitTests
         var result = await _sut.Post(_request);
         // Assert
         var statusCodeResult = result as ObjectResult;
-        Assert.NotNull(statusCodeResult);
-        Assert.Equal((int)HttpStatusCode.BadRequest, statusCodeResult.StatusCode);
+        statusCodeResult.Should().NotBeNull();
+        statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -113,7 +114,7 @@ public class AccountsControllerUnitTests
         var result = await _sut.Post(_request);
         // Assert
         var statusCodeResult = result as ObjectResult;
-        Assert.NotNull(statusCodeResult);
-        Assert.Equal((int)HttpStatusCode.BadRequest, statusCodeResult.StatusCode);
+        statusCodeResult.Should().NotBeNull();
+        statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
     }
 }
