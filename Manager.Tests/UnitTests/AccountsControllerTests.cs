@@ -15,12 +15,18 @@ public class AccountsControllerTests
 
     public AccountsControllerTests()
     {
-        _fixture.Freeze<Mock<IAccountRepository>>()
-            .Setup(x => x.Insert(It.IsAny<Account>()))
-            .ReturnsAsync(new Account() { });
         _request = _fixture.Build<CreateAccountRequest>()
             .With(x => x.Description, "Conta criada com sucesso")
             .Create();
+
+        var account = _fixture.Build<Account>()
+            .With(x => x.Id, It.IsAny<int>())
+            .With(x => x.Description, _request.Description)
+            .Create();
+        _fixture.Freeze<Mock<IAccountRepository>>()
+            .Setup(x => x.Insert(It.IsAny<Account>()))
+            .ReturnsAsync(account);
+
         _sut = _fixture.Build<AccountsController>()
             .OmitAutoProperties()
             .Create();
@@ -34,26 +40,77 @@ public class AccountsControllerTests
     [Fact]
     public async Task Given_Requisicao_Post_When_Request_Valido_Then_Retorna_Created()
     {
-        var retorno = (StatusCodeResult)await _sut.Post(_request);
+        // Act
+        var retorno = await _sut.Post(_request);
+        // Assert
+        var statusCodeResult = retorno as StatusCodeResult;
+        Assert.NotNull(statusCodeResult);
         Assert.Equal((int)HttpStatusCode.Created, retorno.StatusCode);
     }
 
     [Fact]
     public async Task Given_Requisicao_Post_When_Request_Invalido_Then_Retorna_BadRequest()
     {
+        // Arrange
         var request = _request with { Description = string.Empty };
+        // Act
         var retorno = (ObjectResult)await _sut.Post(request);
+        // Assert
         Assert.Equal((int)HttpStatusCode.BadRequest, retorno.StatusCode);
     }
 
     [Fact]
     public async Task Given_Requisicao_Post_When_Repositorio_Exception_Then_Retorna_BadRequest()
     {
+        // Arrange
         _fixture.Freeze<Mock<IAccountRepository>>()
             .Setup(x => x.Insert(It.IsAny<Account>()))
             .Throws(new Exception("Exception"));
-
+        // Act
         var retorno = (ObjectResult)await _sut.Post(_request);
+        // Assert
         Assert.Equal((int)HttpStatusCode.BadRequest, retorno.StatusCode);
+    }
+
+    [Fact]
+    public async Task Post_NullDescription_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new CreateAccountRequest(null);
+        // Act
+        var result = await _sut.Post(request);
+        // Assert
+        var statusCodeResult = result as StatusCodeResult;
+        Assert.NotNull(statusCodeResult);
+        Assert.Equal(400, statusCodeResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task Post_EmptyStringDescription_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new CreateAccountRequest("");
+        // Act
+        var result = await _sut.Post(request);
+        // Assert
+        var statusCodeResult = result as StatusCodeResult;
+        Assert.NotNull(statusCodeResult);
+        Assert.Equal(400, statusCodeResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task Post_ExceptionThrown_ReturnsBadRequest()
+    {
+        // Arrange
+        _fixture.Freeze<Mock<IAccountRepository>>()
+            .Setup(repo => repo.Insert(It.IsAny<Account>()))
+            .ThrowsAsync(new Exception());
+        var request = new CreateAccountRequest("Valid Description");
+        // Act
+        var result = await _sut.Post(request);
+        // Assert
+        var statusCodeResult = result as StatusCodeResult;
+        Assert.NotNull(statusCodeResult);
+        Assert.Equal(400, statusCodeResult.StatusCode);
     }
 }
