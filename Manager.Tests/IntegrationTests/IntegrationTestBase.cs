@@ -1,5 +1,7 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
+using Manager.Api.Features;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Manager.Tests.IntegrationTests;
 
@@ -9,13 +11,13 @@ public class IntegrationTestBase : IAsyncLifetime
     public readonly CancellationToken _token = CancellationToken.None;
     public readonly HttpClient _client;
     public readonly ApiFixture _server;
+    public readonly WriteDatabase todoRepository;
 
-    //public readonly ITodoRepository todoRepository;
     public IntegrationTestBase()
     {
         _server = new ApiFixture();
         _client = _server.CreateClient();
-        //todoRepository = Server.Services.GetRequiredService<ITodoRepository>();
+        todoRepository = _server.Services.GetRequiredService<WriteDatabase>();
     }
 
     public async Task InitializeAsync()

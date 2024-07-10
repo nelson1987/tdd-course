@@ -33,6 +33,10 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         response.Should().BeOfType<HttpResponseMessage>();
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var account = todoRepository.Accounts.First(x => x.Description == _request.Description);
+        account.Should().NotBeNull();
+        account.Id.Should().NotBe(0);
+        account.Description.Should().Be(_request.Description);
     }
 
     [Fact]

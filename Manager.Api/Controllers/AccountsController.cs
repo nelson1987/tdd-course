@@ -24,7 +24,7 @@ public class AccountsController : ControllerBase
             if (string.IsNullOrEmpty(request.Description))
                 return StatusCode(400, "Description is required");
 
-            await _accountRepository.Insert(new Account());
+            await _accountRepository.Insert(new Account() { Description = request.Description });
 
             return StatusCode(201);
         }
