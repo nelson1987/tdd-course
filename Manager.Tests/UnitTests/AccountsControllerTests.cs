@@ -49,7 +49,7 @@ public class AccountsControllerTests
     }
 
     [Fact]
-    public async Task Given_Requisicao_Post_When_Request_Invalido_Then_Retorna_BadRequest()
+    public async Task Given_Requisicao_Post_When_Empty_Description_Then_Retorna_BadRequest()
     {
         // Arrange
         var request = _request with { Description = string.Empty };
@@ -60,7 +60,33 @@ public class AccountsControllerTests
     }
 
     [Fact]
-    public async Task Given_Requisicao_Post_When_Repositorio_Exception_Then_Retorna_BadRequest()
+    public async Task Given_Requisicao_Post_When_Null_Description_Then_Retorna_BadRequest()
+    {
+        // Arrange
+        var request = _request with { Description = null };
+        // Act
+        var result = await _sut.Post(request);
+        // Assert
+        var statusCodeResult = result as StatusCodeResult;
+        Assert.NotNull(statusCodeResult);
+        Assert.Equal(400, statusCodeResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task Given_Requisicao_Post_When_Empty_String_Description_Then_Retorna_BadRequest()
+    {
+        // Arrange
+        var request = _request with { Description = "" };
+        // Act
+        var result = await _sut.Post(request);
+        // Assert
+        var statusCodeResult = result as StatusCodeResult;
+        Assert.NotNull(statusCodeResult);
+        Assert.Equal(400, statusCodeResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task Given_Requisicao_Post_When_Repositorio_Exception_Thrown_Then_Retorna_BadRequest()
     {
         // Arrange
         _fixture.Freeze<Mock<IAccountRepository>>()
@@ -73,33 +99,7 @@ public class AccountsControllerTests
     }
 
     [Fact]
-    public async Task Post_NullDescription_ReturnsBadRequest()
-    {
-        // Arrange
-        var request = new CreateAccountRequest(null);
-        // Act
-        var result = await _sut.Post(request);
-        // Assert
-        var statusCodeResult = result as StatusCodeResult;
-        Assert.NotNull(statusCodeResult);
-        Assert.Equal(400, statusCodeResult.StatusCode);
-    }
-
-    [Fact]
-    public async Task Post_EmptyStringDescription_ReturnsBadRequest()
-    {
-        // Arrange
-        var request = new CreateAccountRequest("");
-        // Act
-        var result = await _sut.Post(request);
-        // Assert
-        var statusCodeResult = result as StatusCodeResult;
-        Assert.NotNull(statusCodeResult);
-        Assert.Equal(400, statusCodeResult.StatusCode);
-    }
-
-    [Fact]
-    public async Task Post_ExceptionThrown_ReturnsBadRequest()
+    public async Task Given_Requisicao_Post_When_Repositorio_Exception_Async_Thrown_Then_Retorna_BadRequest()
     {
         // Arrange
         _fixture.Freeze<Mock<IAccountRepository>>()
@@ -113,4 +113,5 @@ public class AccountsControllerTests
         Assert.NotNull(statusCodeResult);
         Assert.Equal(400, statusCodeResult.StatusCode);
     }
+
 }
