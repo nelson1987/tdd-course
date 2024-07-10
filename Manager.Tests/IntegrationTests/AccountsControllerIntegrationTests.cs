@@ -1,3 +1,4 @@
+using AutoFixture;
 using FluentAssertions;
 using Manager.Api.Controllers;
 using Microsoft.AspNetCore.TestHost;
@@ -15,7 +16,8 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
 
     public AccountsControllerIntegrationTests() : base()
     {
-        _request = new CreateAccountRequest("Descrição");
+        _request = _fixture.Build<CreateAccountRequest>()
+            .Create();
     }
 
     [Fact]
@@ -81,7 +83,7 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
     [Fact]
     public async Task Given_Requisicao_Post_When_Repositorio_Exception_Thrown_Then_Retorna_BadRequest()
     {
-        var client = Server
+        var client = _server
             .WithWebHostBuilder(x =>
             {
                 x.ConfigureTestServices(services =>
@@ -106,7 +108,7 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
     public async Task Given_Requisicao_Post_When_Repositorio_Exception_Async_Thrown_Then_Retorna_BadRequest()
     {
         // Arrange
-        var client = Server
+        var client = _server
             .WithWebHostBuilder(x =>
             {
                 x.ConfigureTestServices(services =>

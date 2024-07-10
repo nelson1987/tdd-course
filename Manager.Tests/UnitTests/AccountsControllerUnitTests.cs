@@ -8,16 +8,19 @@ using System.Net;
 
 namespace Manager.Tests.UnitTests;
 
-public class AccountsControllerUnitTests
+public class UnitTests
 {
     private readonly IFixture _fixture = new Fixture().Customize(new AutoMoqCustomization());
+}
+
+public class AccountsControllerUnitTests : UnitTests
+{
     private readonly AccountsController _sut;
     private readonly CreateAccountRequest _request;
 
     public AccountsControllerUnitTests()
     {
         _request = _fixture.Build<CreateAccountRequest>()
-            .With(x => x.Description, "Conta criada com sucesso")
             .Create();
 
         var account = _fixture.Build<Account>()

@@ -1,16 +1,20 @@
-﻿namespace Manager.Tests.IntegrationTests;
+﻿using AutoFixture;
+using AutoFixture.AutoMoq;
+
+namespace Manager.Tests.IntegrationTests;
 
 public class IntegrationTestBase : IAsyncLifetime
 {
-    public readonly CancellationToken token = CancellationToken.None;
+    public readonly IFixture _fixture = new Fixture().Customize(new AutoMoqCustomization());
+    public readonly CancellationToken _token = CancellationToken.None;
     public readonly HttpClient _client;
-    public readonly ApiFixture Server;
+    public readonly ApiFixture _server;
 
     //public readonly ITodoRepository todoRepository;
     public IntegrationTestBase()
     {
-        Server = new ApiFixture();
-        _client = Server.CreateClient();
+        _server = new ApiFixture();
+        _client = _server.CreateClient();
         //todoRepository = Server.Services.GetRequiredService<ITodoRepository>();
     }
 
