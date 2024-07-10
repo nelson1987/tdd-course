@@ -21,22 +21,27 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task Given_Requisicao_Post_When_Request_Valido_Then_Retorna_Created()
+    public async Task Given_Requisicao_Post_When_Request_Valido_Then_Retorna_Created_And_Account_Create()
     {
-        var jsonContent = JsonConvert.SerializeObject(_request);
-        StringContent content = new StringContent(jsonContent,
-            Encoding.UTF8, "application/json");
         // Act
-        var response = await _client.PostAsync("/accounts", content);
+        HttpResponseMessage response = await CreateAccount(_request, _client);
         // Assert
         response.EnsureSuccessStatusCode();
         response.Should().BeOfType<HttpResponseMessage>();
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.Created);
-        var account = todoRepository.Accounts.First(x => x.Description == _request.Description);
+    }
+
+    [Fact]
+    public async Task Given_Requisicao_Post_When_Request_Valido_Then_Account_In_Database()
+    {
+        //Act
+        HttpResponseMessage response = await CreateAccount(_request, _client);
+        Account? account = todoRepository.Accounts.FirstOrDefault(x => x.Description == _request.Description);
+        // Assert
         account.Should().NotBeNull();
-        account.Id.Should().NotBe(0);
-        account.Description.Should().Be(_request.Description);
+        account!.Id.Should().NotBe(0);
+        account!.Description.Should().Be(_request.Description);
     }
 
     [Fact]
@@ -44,10 +49,8 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
     {
         // Arrange
         var request = _request with { Description = string.Empty };
-        var jsonContent = JsonConvert.SerializeObject(request);
-        // Act
-        var response = await _client.PostAsync("/accounts",
-            new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+        //Act
+        HttpResponseMessage response = await CreateAccount(request, _client);
         // Assert
         response.Should().BeOfType<HttpResponseMessage>();
         response.Should().NotBeNull();
@@ -59,10 +62,8 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
     {
         // Arrange
         var request = _request with { Description = null };
-        var jsonContent = JsonConvert.SerializeObject(request);
-        // Act
-        var response = await _client.PostAsync("/accounts",
-            new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+        //Act
+        HttpResponseMessage response = await CreateAccount(request, _client);
         // Assert
         response.Should().BeOfType<HttpResponseMessage>();
         response.Should().NotBeNull();
@@ -74,10 +75,8 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
     {
         // Arrange
         var request = _request with { Description = "" };
-        var jsonContent = JsonConvert.SerializeObject(request);
-        // Act
-        var response = await _client.PostAsync("/accounts",
-            new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+        //Act
+        HttpResponseMessage response = await CreateAccount(request, _client);
         // Assert
         response.Should().BeOfType<HttpResponseMessage>();
         response.Should().NotBeNull();
@@ -87,6 +86,7 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
     [Fact]
     public async Task Given_Requisicao_Post_When_Repositorio_Exception_Thrown_Then_Retorna_BadRequest()
     {
+        // Arrange
         var client = _server
             .WithWebHostBuilder(x =>
             {
@@ -97,7 +97,6 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
                 });
             })
             .CreateClient();
-        // Arrange
         var jsonContent = JsonConvert.SerializeObject(_request);
         // Act
         var response = await client.PostAsync("/accounts",
@@ -130,5 +129,14 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         response.Should().BeOfType<HttpResponseMessage>();
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    private async Task<HttpResponseMessage> CreateAccount(CreateAccountRequest request, HttpClient client)
+    {
+        var jsonContent = JsonConvert.SerializeObject(request);
+        // Act
+        var response = await client.PostAsync("/accounts",
+            new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+        return response;
     }
 }
