@@ -1,11 +1,19 @@
-﻿using Manager.Api.Features;
+﻿using FluentResults;
+using Manager.Api.Features;
 
 namespace Manager.Tests.IntegrationTests;
 
 public class InMemoryAccountRepository : IAccountRepository
 {
-    public Task<Response<Account>> Insert(Account account)
+    public async Task<Result<Account>> Insert(Account account)
     {
-        throw new Exception();
+        try
+        {
+            throw new Exception();
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail(ex.Message);
+        }
     }
 }

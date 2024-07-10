@@ -1,14 +1,6 @@
-﻿namespace Manager.Api.Features;
+﻿using FluentResults;
 
-public class Response<T> where T : class
-{
-    public Response(T value)
-    {
-        Value = value;
-    }
-
-    public T Value { get; set; }
-}
+namespace Manager.Api.Features;
 
 public class AccountRepository : IAccountRepository
 {
@@ -19,11 +11,11 @@ public class AccountRepository : IAccountRepository
         _writeDatabase = writeDatabase;
     }
 
-    public async Task<Response<Account>> Insert(Account account)
+    public async Task<Result<Account>> Insert(Account account)
     {
         account.Id = 1;
         _writeDatabase.Accounts.Add(account);
-        return await Task.FromResult(new Response<Account>(account));
+        return Result.Ok(account);
     }
 }
 

@@ -1,5 +1,6 @@
 using AutoFixture;
 using FluentAssertions;
+using FluentResults;
 using Manager.Api.Controllers;
 using Manager.Api.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,7 @@ public class AccountsControllerUnitTests : UnitTests
             .Create();
         _fixture.Freeze<Mock<IAccountRepository>>()
             .Setup(x => x.Insert(It.IsAny<Account>()))
-            .ReturnsAsync(new Response<Account>(account));
+            .ReturnsAsync(Result.Ok(account));
 
         _sut = _fixture.Build<AccountsController>()
             .OmitAutoProperties()
@@ -92,13 +93,13 @@ public class AccountsControllerUnitTests : UnitTests
         // Arrange
         _fixture.Freeze<Mock<IAccountRepository>>()
             .Setup(x => x.Insert(It.IsAny<Account>()))
-            .Throws(new Exception("Exception"));
+            .Throws(new Exception());
         // Act
         var result = await _sut.Post(_request);
         // Assert
         var statusCodeResult = result as ObjectResult;
         statusCodeResult.Should().NotBeNull();
-        statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
     }
 
     [Fact]
@@ -113,6 +114,6 @@ public class AccountsControllerUnitTests : UnitTests
         // Assert
         var statusCodeResult = result as ObjectResult;
         statusCodeResult.Should().NotBeNull();
-        statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
     }
 }

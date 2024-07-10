@@ -24,13 +24,15 @@ public class AccountsController : ControllerBase
             if (string.IsNullOrEmpty(request.Description))
                 return StatusCode(400, "Description is required");
 
-            await _accountRepository.Insert(new Account() { Description = request.Description });
+            var response = await _accountRepository.Insert(new Account() { Description = request.Description });
+            if (response.IsFailed)
+                return StatusCode(400, "Fail to insert account");
 
             return StatusCode(201);
         }
         catch (Exception)
         {
-            return StatusCode(400, "Tente novamente mais tarde");
+            return StatusCode(500, "Tente novamente mais tarde");
         }
     }
 }
