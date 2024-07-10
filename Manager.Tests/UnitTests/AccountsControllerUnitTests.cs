@@ -1,5 +1,4 @@
 using AutoFixture;
-using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Manager.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
@@ -7,11 +6,6 @@ using Moq;
 using System.Net;
 
 namespace Manager.Tests.UnitTests;
-
-public class UnitTests
-{
-    private readonly IFixture _fixture = new Fixture().Customize(new AutoMoqCustomization());
-}
 
 public class AccountsControllerUnitTests : UnitTests
 {
