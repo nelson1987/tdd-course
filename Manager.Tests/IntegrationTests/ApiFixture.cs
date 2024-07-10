@@ -6,12 +6,6 @@ namespace Manager.Tests.IntegrationTests;
 
 public class ApiFixture : WebApplicationFactory<Program>
 {
-    protected override IHost CreateHost(IHostBuilder builder)
-    {
-        builder.UseEnvironment("Development");
-        return base.CreateHost(builder);
-    }
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
-        => builder.UseEnvironment("Development");
+        => builder.UseEnvironment("Testing");
 }

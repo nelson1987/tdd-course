@@ -1,5 +1,4 @@
 using Manager.Api.Controllers;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
@@ -8,17 +7,13 @@ using System.Text;
 
 namespace Manager.Tests.IntegrationTests;
 
-public class AccountsControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+public class AccountsControllerIntegrationTests : IntegrationTestBase
 {
-    private readonly WebApplicationFactory<Program> _webApplicationFactory;
-    private readonly HttpClient _client;
     private readonly CreateAccountRequest _request;
 
-    public AccountsControllerIntegrationTests(WebApplicationFactory<Program> factory)// : base()
+    public AccountsControllerIntegrationTests() : base()
     {
         _request = new CreateAccountRequest("Descrição");
-        _webApplicationFactory = factory;
-        _client = _webApplicationFactory.CreateClient();
     }
 
     [Fact]
@@ -80,7 +75,7 @@ public class AccountsControllerIntegrationTests : IClassFixture<WebApplicationFa
     [Fact]
     public async Task Given_Requisicao_Post_When_Repositorio_Exception_Thrown_Then_Retorna_BadRequest()
     {
-        var client = _webApplicationFactory
+        var client = Server
             .WithWebHostBuilder(x =>
             {
                 x.ConfigureServices(services =>
@@ -104,7 +99,7 @@ public class AccountsControllerIntegrationTests : IClassFixture<WebApplicationFa
     public async Task Given_Requisicao_Post_When_Repositorio_Exception_Async_Thrown_Then_Retorna_BadRequest()
     {
         // Arrange
-        var client = _webApplicationFactory
+        var client = Server
             .WithWebHostBuilder(x =>
             {
                 x.ConfigureServices(services =>
@@ -121,13 +116,5 @@ public class AccountsControllerIntegrationTests : IClassFixture<WebApplicationFa
         // Assert
         Assert.NotNull(response);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
-}
-
-public class InMemoryAccountRepository : IAccountRepository
-{
-    public Task<Account> Insert(Account account)
-    {
-        throw new Exception();
     }
 }
