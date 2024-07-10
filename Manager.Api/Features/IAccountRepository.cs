@@ -2,5 +2,5 @@
 
 public interface IAccountRepository
 {
-    Task<Account> Insert(Account account);
+    Task<Response<Account>> Insert(Account account);
 }

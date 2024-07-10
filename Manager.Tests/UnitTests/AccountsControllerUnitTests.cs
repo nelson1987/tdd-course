@@ -24,7 +24,7 @@ public class AccountsControllerUnitTests : UnitTests
             .Create();
         _fixture.Freeze<Mock<IAccountRepository>>()
             .Setup(x => x.Insert(It.IsAny<Account>()))
-            .ReturnsAsync(account);
+            .ReturnsAsync(new Response<Account>(account));
 
         _sut = _fixture.Build<AccountsController>()
             .OmitAutoProperties()

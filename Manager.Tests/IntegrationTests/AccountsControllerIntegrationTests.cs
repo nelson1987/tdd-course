@@ -97,34 +97,8 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
                 });
             })
             .CreateClient();
-        var jsonContent = JsonConvert.SerializeObject(_request);
         // Act
-        var response = await client.PostAsync("/accounts",
-            new StringContent(jsonContent, Encoding.UTF8, "application/json"));
-        // Assert
-        response.Should().BeOfType<HttpResponseMessage>();
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-
-    [Fact]
-    public async Task Given_Requisicao_Post_When_Repositorio_Exception_Async_Thrown_Then_Retorna_BadRequest()
-    {
-        // Arrange
-        var client = _server
-            .WithWebHostBuilder(x =>
-            {
-                x.ConfigureTestServices(services =>
-                {
-                    services.RemoveAll<IAccountRepository>();
-                    services.AddScoped<IAccountRepository, InMemoryAccountRepository>();
-                });
-            })
-            .CreateClient();
-        var jsonContent = JsonConvert.SerializeObject(_request);
-        // Act
-        var response = await client.PostAsync("/accounts",
-            new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+        HttpResponseMessage response = await CreateAccount(_request, client);
         // Assert
         response.Should().BeOfType<HttpResponseMessage>();
         response.Should().NotBeNull();

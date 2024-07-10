@@ -4,7 +4,7 @@ namespace Manager.Tests.IntegrationTests;
 
 public class InMemoryAccountRepository : IAccountRepository
 {
-    public Task<Account> Insert(Account account)
+    public Task<Response<Account>> Insert(Account account)
     {
         throw new Exception();
     }
