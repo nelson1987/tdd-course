@@ -4,6 +4,8 @@ namespace Manager.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Produces("application/json")]
+[Consumes("application/json")]
 public class AccountsController : ControllerBase
 {
     private readonly IAccountRepository _accountRepository;
@@ -40,7 +42,24 @@ public class Account
     public string? Description { get; set; }
 }
 
+public static class Dependencies
+{
+    public static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IAccountRepository, AccountRepository>();
+        return services;
+    }
+}
+
 public interface IAccountRepository
 {
     Task<Account> Insert(Account account);
+}
+
+public class AccountRepository : IAccountRepository
+{
+    public Task<Account> Insert(Account account)
+    {
+        return Task.FromResult(account);
+    }
 }

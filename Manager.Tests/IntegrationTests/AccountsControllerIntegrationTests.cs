@@ -1,5 +1,7 @@
 using Manager.Api.Controllers;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
 using System.Net;
 using System.Text;
@@ -8,24 +10,25 @@ namespace Manager.Tests.IntegrationTests;
 
 public class AccountsControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly WebApplicationFactory<Program> _webApplicationFactory;
     private readonly HttpClient _client;
     private readonly CreateAccountRequest _request;
 
-    public AccountsControllerIntegrationTests(WebApplicationFactory<Program> factory)
+    public AccountsControllerIntegrationTests(WebApplicationFactory<Program> factory)// : base()
     {
-        _factory = factory;
-        _client = _factory.CreateClient();
         _request = new CreateAccountRequest("Descrição");
+        _webApplicationFactory = factory;
+        _client = _webApplicationFactory.CreateClient();
     }
 
     [Fact]
     public async Task Given_Requisicao_Post_When_Request_Valido_Then_Retorna_Created()
     {
         var jsonContent = JsonConvert.SerializeObject(_request);
+        StringContent content = new StringContent(jsonContent,
+            Encoding.UTF8, "application/json");
         // Act
-        var response = await _client.PostAsync("/accounts",
-            new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+        var response = await _client.PostAsync("/accounts", content);
         // Assert
         response.EnsureSuccessStatusCode();
         Assert.NotNull(response);
@@ -77,13 +80,20 @@ public class AccountsControllerIntegrationTests : IClassFixture<WebApplicationFa
     [Fact]
     public async Task Given_Requisicao_Post_When_Repositorio_Exception_Thrown_Then_Retorna_BadRequest()
     {
-        //_fixture.Freeze<Mock<IAccountRepository>>()
-        //    .Setup(repo => repo.Insert(It.IsAny<Account>()))
-        //    .Throws(new Exception());
+        var client = _webApplicationFactory
+            .WithWebHostBuilder(x =>
+            {
+                x.ConfigureServices(services =>
+                {
+                    services.RemoveAll<IAccountRepository>();
+                    services.AddScoped<IAccountRepository, InMemoryAccountRepository>();
+                });
+            })
+            .CreateClient();
         // Arrange
         var jsonContent = JsonConvert.SerializeObject(_request);
         // Act
-        var response = await _client.PostAsync("/accounts",
+        var response = await client.PostAsync("/accounts",
             new StringContent(jsonContent, Encoding.UTF8, "application/json"));
         // Assert
         Assert.NotNull(response);
@@ -94,15 +104,30 @@ public class AccountsControllerIntegrationTests : IClassFixture<WebApplicationFa
     public async Task Given_Requisicao_Post_When_Repositorio_Exception_Async_Thrown_Then_Retorna_BadRequest()
     {
         // Arrange
-        //_fixture.Freeze<Mock<IAccountRepository>>()
-        //    .Setup(repo => repo.Insert(It.IsAny<Account>()))
-        //    .ThrowsAsync(new Exception());
+        var client = _webApplicationFactory
+            .WithWebHostBuilder(x =>
+            {
+                x.ConfigureServices(services =>
+                {
+                    services.RemoveAll<IAccountRepository>();
+                    services.AddScoped<IAccountRepository, InMemoryAccountRepository>();
+                });
+            })
+            .CreateClient();
         var jsonContent = JsonConvert.SerializeObject(_request);
         // Act
-        var response = await _client.PostAsync("/accounts",
+        var response = await client.PostAsync("/accounts",
             new StringContent(jsonContent, Encoding.UTF8, "application/json"));
         // Assert
         Assert.NotNull(response);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+}
+
+public class InMemoryAccountRepository : IAccountRepository
+{
+    public Task<Account> Insert(Account account)
+    {
+        throw new Exception();
     }
 }
