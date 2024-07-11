@@ -11,14 +11,13 @@ public class IntegrationTestBase : IAsyncLifetime
     public readonly CancellationToken _token = CancellationToken.None;
     public readonly HttpClient _client;
     public readonly ApiFixture _server;
-    public readonly IAccountRepository todoRepository;
-    public readonly ITokenService tokenService;
+    public readonly IAccountRepository _accountRepository;
 
     public IntegrationTestBase()
     {
         _server = new ApiFixture();
         _client = _server.CreateClient();
-        todoRepository = _server.Services.GetRequiredService<IAccountRepository>();
+        _accountRepository = _server.Services.GetRequiredService<IAccountRepository>();
     }
 
     public async Task InitializeAsync()

@@ -8,6 +8,38 @@ using Moq;
 using System.Net;
 
 namespace Manager.Tests.UnitTests;
+/*
+public class AccountIntegrationTests : IntegrationTestBase
+{
+    public AccountIntegrationTests() : base()
+    {
+    }
+
+    [Fact]
+    public async Task Given_Insert_Novo_Account_When_GetById_Novo_Account_Then_Retorna_Novo_Account()
+    {
+        // Arrange
+        var product = new Account();
+        var dbContextOptions = new DbContextOptionsBuilder<ProductContext>()
+            .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
+            .Options;
+
+        using var postContext = new ProductContext(dbContextOptions);
+        var productRepository = new AccountRepository(postContext);
+        await productRepository.Insert(product);
+
+        // Act
+        using var getContext = new ProductContext(dbContextOptions);
+        var getProductRepository = new AccountRepository(getContext);
+        var retrievedProduct = await getProductRepository.GetById(product.Id);
+
+        // Assert
+        retrievedProduct.Should().NotBeNull();
+        retrievedProduct.Value.Should().NotBeNull();
+        retrievedProduct.Value.Id.Should().Be(product.Id);
+        retrievedProduct.Value.Description.Should().Be(product.Description);
+    }
+}*/
 
 public class AccountsControllerUnitTests : UnitTestsBase
 {

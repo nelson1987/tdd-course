@@ -24,7 +24,7 @@ public class ApiFixture : WebApplicationFactory<Program>
                   {
                       services.AddAuthentication(defaultScheme: "TestScheme")
                               .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("TestScheme", options => { });
-                      services.AddDbContext<ProductContext>(x =>
+                      services.AddDbContext<AccountContext>(x =>
                       {
                           x.UseInMemoryDatabase(databaseName: "InMemoryDatabase");
                       });

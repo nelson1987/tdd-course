@@ -5,9 +5,9 @@ namespace Manager.Api.Features.Accounts;
 
 public class AccountRepository : IAccountRepository
 {
-    private readonly ProductContext _writeDatabase;
+    private readonly AccountContext _writeDatabase;
 
-    public AccountRepository(ProductContext writeDatabase)
+    public AccountRepository(AccountContext writeDatabase)
     {
         _writeDatabase = writeDatabase;
     }
@@ -20,23 +20,19 @@ public class AccountRepository : IAccountRepository
 
     public async Task<Result<Account>> Insert(Account account)
     {
-        //account.Id = 1;
-        await _writeDatabase.Accounts.AddAsync(account);
-        await _writeDatabase.SaveChangesAsync();
-        return Result.Ok(account);
-    }
-}
-
-public class ProductContext : DbContext
-{
-    public ProductContext(DbContextOptions<ProductContext> options) : base(options)
-    {
-    }
-
-    public DbSet<Account> Accounts { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        //optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=BancoDB;Trusted_Connection=True;");
+        try
+        {
+            await _writeDatabase.Accounts.AddAsync(account);
+            await _writeDatabase.SaveChangesAsync();
+            return Result.Ok(account);
+        }
+        catch (ArgumentException ex) when (ex.Message.Contains("An item with the same key has already been added."))
+        {
+            return Result.Fail("Error on insert account in base of duplicate key");
+        }
+        catch (DbUpdateException ex)
+        {
+            return Result.Fail(ex.Message);
+        }
     }
 }

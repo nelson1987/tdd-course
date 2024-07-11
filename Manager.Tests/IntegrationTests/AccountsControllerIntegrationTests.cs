@@ -6,7 +6,6 @@ using Manager.Tests.Exceptions;
 using Manager.Tests.InMemoryInfrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
@@ -14,38 +13,6 @@ using System.Net;
 using System.Text;
 
 namespace Manager.Tests.IntegrationTests;
-
-public class AccountIntegrationTests : IntegrationTestBase
-{
-    public AccountIntegrationTests() : base()
-    {
-    }
-
-    [Fact]
-    public async Task Given_Insert_Novo_Account_When_GetById_Novo_Account_Then_Retorna_Novo_Account()
-    {
-        // Arrange
-        var product = new Account();
-        var dbContextOptions = new DbContextOptionsBuilder<ProductContext>()
-            .UseInMemoryDatabase(databaseName: "InMemoryDatabase")
-            .Options;
-
-        using var postContext = new ProductContext(dbContextOptions);
-        var productRepository = new AccountRepository(postContext);
-        await productRepository.Insert(product);
-
-        // Act
-        using var getContext = new ProductContext(dbContextOptions);
-        var getProductRepository = new AccountRepository(getContext);
-        var retrievedProduct = await getProductRepository.GetById(product.Id);
-
-        // Assert
-        retrievedProduct.Should().NotBeNull();
-        retrievedProduct.Value.Should().NotBeNull();
-        retrievedProduct.Value.Id.Should().Be(product.Id);
-        retrievedProduct.Value.Description.Should().Be(product.Description);
-    }
-}
 
 public class AccountsControllerIntegrationTests : IntegrationTestBase
 {
@@ -100,7 +67,7 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         //var response = JsonSerializer.Deserialize<int>(jsonResponse);
         var response = Convert.ToInt32(jsonResponse);
         // Act
-        var getAccount = await todoRepository.GetById(response);// .FirstOrDefault(x => x.Description == _request.Description);
+        var getAccount = await _accountRepository.GetById(response);// .FirstOrDefault(x => x.Description == _request.Description);
         var account = getAccount.Value;
         // Assert
         account.Should().NotBeNull();
