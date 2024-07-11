@@ -1,4 +1,5 @@
 using Manager.Api.Features;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Manager.Api.Controllers;
@@ -16,6 +17,7 @@ public class AccountsController : ControllerBase
         _accountRepository = accountRepository;
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] CreateAccountRequest request)
     {

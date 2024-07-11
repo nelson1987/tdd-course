@@ -12,6 +12,7 @@ public class IntegrationTestBase : IAsyncLifetime
     public readonly HttpClient _client;
     public readonly ApiFixture _server;
     public readonly WriteDatabase todoRepository;
+    public readonly ITokenService tokenService;
 
     public IntegrationTestBase()
     {

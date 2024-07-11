@@ -59,6 +59,7 @@ public class AccountsControllerUnitTests : UnitTests
         var statusCodeResult = retorno as ObjectResult;
         statusCodeResult.Should().NotBeNull();
         statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        statusCodeResult.Value.Should().Be("Description is required");
     }
 
     [Fact]
@@ -72,6 +73,7 @@ public class AccountsControllerUnitTests : UnitTests
         var statusCodeResult = result as ObjectResult;
         statusCodeResult.Should().NotBeNull();
         statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        statusCodeResult.Value.Should().Be("Description is required");
     }
 
     [Fact]
@@ -85,10 +87,11 @@ public class AccountsControllerUnitTests : UnitTests
         var statusCodeResult = result as ObjectResult;
         statusCodeResult.Should().NotBeNull();
         statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        statusCodeResult.Value.Should().Be("Description is required");
     }
 
     [Fact]
-    public async Task Given_Requisicao_Post_When_Repositorio_Exception_Thrown_Then_Retorna_BadRequest()
+    public async Task Given_Requisicao_Post_When_Repositorio_Exception_Thrown_Then_Retorna_InternalServerError()
     {
         // Arrange
         _fixture.Freeze<Mock<IAccountRepository>>()
@@ -103,7 +106,7 @@ public class AccountsControllerUnitTests : UnitTests
     }
 
     [Fact]
-    public async Task Given_Requisicao_Post_When_Repositorio_Exception_Async_Thrown_Then_Retorna_BadRequest()
+    public async Task Given_Requisicao_Post_When_Repositorio_Exception_Async_Thrown_Then_Retorna_InternalServerError()
     {
         // Arrange
         _fixture.Freeze<Mock<IAccountRepository>>()
@@ -115,5 +118,22 @@ public class AccountsControllerUnitTests : UnitTests
         var statusCodeResult = result as ObjectResult;
         statusCodeResult.Should().NotBeNull();
         statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
+    }
+
+    [Fact]
+    public async Task Given_Requisicao_Post_When_Insert_Account_Fails_Then_Returns_BadRequest()
+    {
+        // Arrange
+        _fixture.Freeze<Mock<IAccountRepository>>()
+            .Setup(repo => repo.Insert(It.IsAny<Account>()))
+            .ReturnsAsync(Result.Fail<Account>("Mensagem"));
+        // Act
+        var result = await _sut.Post(_request);
+
+        // Assert
+        var statusCodeResult = result as ObjectResult;
+        statusCodeResult.Should().NotBeNull();
+        statusCodeResult!.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        statusCodeResult.Value.Should().Be("Fail to insert account");
     }
 }

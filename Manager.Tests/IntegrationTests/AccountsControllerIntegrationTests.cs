@@ -1,14 +1,43 @@
 using AutoFixture;
 using FluentAssertions;
 using Manager.Api.Features;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Net;
+using System.Security.Claims;
 using System.Text;
+using System.Text.Encodings.Web;
 
 namespace Manager.Tests.IntegrationTests;
+
+public class TestAuthHandlerException : AuthenticationHandler<AuthenticationSchemeOptions>
+{
+    public TestAuthHandlerException(IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory logger, UrlEncoder encoder)
+        : base(options, logger, encoder)
+    {
+    }
+
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        var claims = new[] {
+                new Claim(ClaimTypes.Name, "Test user"),
+                new Claim("preferred_username", "user@email.com.br")
+            };
+        var identity = new ClaimsIdentity(claims, "Test");
+        var principal = new ClaimsPrincipal(identity);
+        var ticket = new AuthenticationTicket(principal, "TestSchemeException");
+
+        var result = AuthenticateResult.Fail(new Exception());
+
+        return Task.FromResult(result);
+    }
+}
 
 public class AccountsControllerIntegrationTests : IntegrationTestBase
 {
@@ -18,6 +47,28 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
     {
         _request = _fixture.Build<CreateAccountRequest>()
             .Create();
+    }
+
+    [Fact]
+    public async Task Given_Requisicao_Post_When_Request_Valido_Then_Retorna_Unathorized()
+    {
+        // Arrange
+        var client = _server
+            .WithWebHostBuilder(x =>
+            {
+                x.ConfigureTestServices(services =>
+                 {
+                     services.AddAuthentication(defaultScheme: "TestSchemeException")
+                             .AddScheme<AuthenticationSchemeOptions, TestAuthHandlerException>("TestSchemeException", options => { });
+                 });
+            })
+            .CreateClient();
+        // Act
+        HttpResponseMessage response = await CreateAccount(_request, client);
+        // Assert
+        response.Should().BeOfType<HttpResponseMessage>();
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
