@@ -23,17 +23,19 @@ public class AccountsController : ControllerBase
         try
         {
             if (string.IsNullOrEmpty(request.Description))
-                return StatusCode(400, "Description is required");
+                return BadRequest("Description is required");
 
-            var response = await _accountRepository.Insert(new Account() { Description = request.Description });
+            var account = new Account() { Description = request.Description };
+            var response = await _accountRepository.Insert(account);
+
             if (response.IsFailed)
-                return StatusCode(400, "Fail to insert account");
+                return BadRequest("Fail to insert account");
 
-            return StatusCode(201, response.Value.Id);
+            return Created("/accounts", response.Value.Id);
         }
         catch (Exception)
         {
-            return StatusCode(500, "Tente novamente mais tarde");
+            return Problem(detail: "Tente novamente mais tarde", statusCode: 500);
         }
     }
 }

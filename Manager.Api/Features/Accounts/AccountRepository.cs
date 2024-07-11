@@ -27,16 +27,6 @@ public class AccountRepository : IAccountRepository
     }
 }
 
-public class WriteDatabase //: IWriteDatabase
-{
-    public List<Account> Accounts { get; set; }
-
-    public WriteDatabase()
-    {
-        Accounts = new List<Account>();
-    }
-}
-
 public class ProductContext : DbContext
 {
     public ProductContext(DbContextOptions<ProductContext> options) : base(options)
