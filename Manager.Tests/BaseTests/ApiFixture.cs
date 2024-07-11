@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
-namespace Manager.Tests.IntegrationTests;
+namespace Manager.Tests.BaseTests;
 
 public class ApiFixture : WebApplicationFactory<Program>
 {

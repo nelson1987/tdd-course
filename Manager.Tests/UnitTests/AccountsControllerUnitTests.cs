@@ -1,15 +1,15 @@
 using AutoFixture;
 using FluentAssertions;
 using FluentResults;
-using Manager.Api.Controllers;
-using Manager.Api.Features;
+using Manager.Api.Features.Accounts;
+using Manager.Tests.BaseTests;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Net;
 
 namespace Manager.Tests.UnitTests;
 
-public class AccountsControllerUnitTests : UnitTests
+public class AccountsControllerUnitTests : UnitTestsBase
 {
     private readonly AccountsController _sut;
     private readonly CreateAccountRequest _request;

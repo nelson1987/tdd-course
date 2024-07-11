@@ -1,8 +1,7 @@
-using Manager.Api.Features;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Manager.Api.Controllers;
+namespace Manager.Api.Features.Accounts;
 
 [ApiController]
 [Route("[controller]")]

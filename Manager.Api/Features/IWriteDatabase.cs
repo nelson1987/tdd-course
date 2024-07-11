@@ -1,4 +1,6 @@
-﻿namespace Manager.Api.Features;
+﻿using Manager.Api.Features.Accounts;
+
+namespace Manager.Api.Features;
 
 public interface IWriteDatabase
 {

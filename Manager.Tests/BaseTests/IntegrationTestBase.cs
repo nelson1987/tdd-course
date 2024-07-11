@@ -1,9 +1,9 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
-using Manager.Api.Features;
+using Manager.Api.Features.Accounts;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Manager.Tests.IntegrationTests;
+namespace Manager.Tests.BaseTests;
 
 public class IntegrationTestBase : IAsyncLifetime
 {

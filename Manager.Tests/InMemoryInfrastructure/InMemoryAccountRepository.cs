@@ -1,7 +1,7 @@
 ﻿using FluentResults;
-using Manager.Api.Features;
+using Manager.Api.Features.Accounts;
 
-namespace Manager.Tests.IntegrationTests;
+namespace Manager.Tests.InMemoryInfrastructure;
 
 public class InMemoryAccountRepository : IAccountRepository
 {

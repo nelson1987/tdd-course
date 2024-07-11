@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 
-namespace Manager.Api.Features;
+namespace Manager.Api.Features.Accounts;
 
 public interface IAccountRepository
 {
