@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Manager.Api.Features.Accounts;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -22,6 +24,10 @@ public class ApiFixture : WebApplicationFactory<Program>
                   {
                       services.AddAuthentication(defaultScheme: "TestScheme")
                               .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("TestScheme", options => { });
+                      services.AddDbContext<ProductContext>(x =>
+                      {
+                          x.UseInMemoryDatabase(databaseName: "InMemoryDatabase");
+                      });
                   });
 
     private class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>

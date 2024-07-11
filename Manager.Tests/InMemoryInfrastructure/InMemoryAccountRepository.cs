@@ -5,6 +5,11 @@ namespace Manager.Tests.InMemoryInfrastructure;
 
 public class InMemoryAccountRepository : IAccountRepository
 {
+    public Task<Result<Account>> GetById(int accountId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<Result<Account>> Insert(Account account)
     {
         try

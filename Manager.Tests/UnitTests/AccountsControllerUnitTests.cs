@@ -20,7 +20,6 @@ public class AccountsControllerUnitTests : UnitTestsBase
             .Create();
 
         var account = _fixture.Build<Account>()
-            .With(x => x.Id, It.IsAny<int>())
             .With(x => x.Description, _request.Description)
             .Create();
         _fixture.Freeze<Mock<IAccountRepository>>()
@@ -43,7 +42,7 @@ public class AccountsControllerUnitTests : UnitTestsBase
         // Act
         var response = await _sut.Post(_request);
         // Assert
-        var result = response as StatusCodeResult;
+        var result = response as ObjectResult;
         result.Should().NotBeNull();
         result!.StatusCode.Should().Be((int)HttpStatusCode.Created);
     }

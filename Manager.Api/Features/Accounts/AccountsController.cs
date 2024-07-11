@@ -29,7 +29,7 @@ public class AccountsController : ControllerBase
             if (response.IsFailed)
                 return StatusCode(400, "Fail to insert account");
 
-            return StatusCode(201);
+            return StatusCode(201, response.Value.Id);
         }
         catch (Exception)
         {
