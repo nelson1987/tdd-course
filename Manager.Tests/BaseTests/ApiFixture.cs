@@ -22,8 +22,10 @@ public class ApiFixture : WebApplicationFactory<Program>
         => builder.UseEnvironment("Testing")
                   .ConfigureTestServices(services =>
                   {
+                      //Authentication
                       services.AddAuthentication(defaultScheme: "TestScheme")
                               .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("TestScheme", options => { });
+                      //DataContext
                       services.AddDbContext<AccountContext>(x =>
                       {
                           x.UseInMemoryDatabase(databaseName: "InMemoryDatabase");

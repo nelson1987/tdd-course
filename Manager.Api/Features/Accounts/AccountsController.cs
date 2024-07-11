@@ -10,16 +10,20 @@ namespace Manager.Api.Features.Accounts;
 public class AccountsController : ControllerBase
 {
     private readonly IAccountRepository _accountRepository;
+    private readonly ILogger<AccountsController> _logger;
 
-    public AccountsController(IAccountRepository accountRepository)
+    public AccountsController(IAccountRepository accountRepository,
+        ILogger<AccountsController> logger)
     {
         _accountRepository = accountRepository;
+        _logger = logger;
     }
 
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] CreateAccountRequest request)
     {
+        _logger.LogInformation("Started");
         try
         {
             if (string.IsNullOrEmpty(request.Description))
@@ -31,10 +35,12 @@ public class AccountsController : ControllerBase
             if (response.IsFailed)
                 return BadRequest("Fail to insert account");
 
+            _logger.LogInformation("Ended");
             return Created("/accounts", response.Value.Id);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError("Exception: {exception}", ex.Message);
             return Problem(detail: "Tente novamente mais tarde", statusCode: 500);
         }
     }
