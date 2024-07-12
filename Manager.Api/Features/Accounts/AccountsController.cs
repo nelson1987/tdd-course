@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Manager.Api.Features.Accounts;
@@ -19,7 +18,7 @@ public class AccountsController : ControllerBase
         _logger = logger;
     }
 
-    [Authorize]
+    //[Authorize]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] CreateAccountRequest request)
     {

@@ -5,6 +5,8 @@ namespace Manager.Api.Features.Accounts;
 
 public class AccountContext : DbContext
 {
+    private readonly ILoggerFactory _loggerFactory;
+
     public AccountContext(DbContextOptions<AccountContext> options) : base(options)
     {
     }

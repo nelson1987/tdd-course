@@ -16,12 +16,6 @@ app.UseHsts();
 app.UseHttpsRedirection();
 app.UseUserAuthentication();
 app.MapControllers();
-//app.Use(async (HttpContext context, Func<Task> next) =>
-//{
-//    app.Logger.LogInformation("Executing the next Middleware...\r\n");
-//    await next();
-//    app.Logger.LogInformation("After the next Middleware call.\r\n");
-//});
 app.UseMiddleware<RequestContextLoggingMiddleware>(app.Logger);
 app.Run();
 
