@@ -56,7 +56,7 @@ public class AccountRepositoryIntegrationTests : IntegrationTestBase
         antes.IsSuccess.Should().BeTrue();
         antes.Value.Id.Should().Be(_entity.Id);
         depois.IsFailed.Should().BeTrue();
-        depois.Reasons[0].Message.Should().Contain("Error on insert account in base of duplicate key");
+        depois.Reasons[0].Message.Should().Contain("This account already exists");
     }
 
     [Fact]
@@ -76,9 +76,8 @@ public class AccountRepositoryIntegrationTests : IntegrationTestBase
         antes.Value.Description.Should().Be(_entity.Description);
 
         depois.Should().NotBeNull();
-        depois.IsSuccess.Should().BeTrue();
-        depois.Value.Id.Should().Be(retrievedEntity.Id);
-        depois.Value.Description.Should().Be(retrievedEntity.Description);
+        depois.IsSuccess.Should().BeFalse();
+        depois.Reasons[0].Message.Should().Contain("This account already exists");
     }
 
     [Fact]

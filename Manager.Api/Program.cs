@@ -1,4 +1,5 @@
 using Manager.Api.Features;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Primitives;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,9 +8,59 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddRepositories();
 builder.Services.AddUserAuthentication();
+builder.Services.AddResponseCaching();
 builder.Services.AddAntiforgery();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
+app.UseExceptionHandler(x =>
+{
+    x.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+
+        var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+        app.Logger.LogError("Exception: {exception}", contextFeature.Error.GetBaseException().Message);
+        if (contextFeature is not null)
+        {
+            await context.Response.WriteAsJsonAsync(new
+            {
+                StatusCodes = context.Response.StatusCode,
+                Message = "Internal Server Error"
+            });
+        }
+    });
+});
+/*
+app.UseExceptionHandler(appError =>
+{
+    appError.Run(async context =>
+    {
+        var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+        if (contextFeature == null) return;
+
+        context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+        context.Response.ContentType = "application/json";
+
+        context.Response.StatusCode = contextFeature.Error switch
+        {
+            //BadRequestException => (int)HttpStatusCode.BadRequest,
+            OperationCanceledException => (int)HttpStatusCode.ServiceUnavailable,
+            //NotFoundException => (int)HttpStatusCode.NotFound,
+            _ => (int)HttpStatusCode.InternalServerError
+        };
+
+        var errorResponse = new
+        {
+            statusCode = context.Response.StatusCode,
+            message = contextFeature.Error.GetBaseException().Message
+        };
+
+        await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
+    });
+});
+*/
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHsts();
@@ -17,6 +68,7 @@ app.UseHttpsRedirection();
 app.UseUserAuthentication();
 app.MapControllers();
 app.UseMiddleware<RequestContextLoggingMiddleware>(app.Logger);
+app.UseResponseCaching();
 app.Run();
 
 public class RequestContextLoggingMiddleware
