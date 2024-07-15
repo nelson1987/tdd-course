@@ -76,6 +76,25 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task Given_Requisicao_Post_When_Request_Valido_Then_Account_In_Cache()
+    {
+        //Act
+        HttpResponseMessage result = await CreateAccount(_request, _client);
+        var jsonResponse = await result.Content.ReadAsStringAsync();
+        //var response = JsonSerializer.Deserialize<int>(jsonResponse);
+        var response = Convert.ToInt32(jsonResponse);
+        // Act
+        var getAccount = await _client.GetAsync($"/accounts/{response}");
+        var getAccountJsonResponse = await getAccount.Content.ReadAsStringAsync();
+        var account = System.Text.Json.JsonSerializer.Deserialize<Account>(getAccountJsonResponse,
+                new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        // Assert
+        account.Should().NotBeNull();
+        account!.Id.Should().NotBe(0);
+        account!.Description.Should().Be(_request.Description);
+    }
+
+    [Fact]
     public async Task Given_Requisicao_Post_When_Empty_Description_Then_Retorna_BadRequest()
     {
         // Arrange

@@ -1,8 +1,14 @@
 using Manager.Api.Features;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Primitives;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
+using System.Diagnostics.Metrics;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -11,8 +17,27 @@ builder.Services.AddUserAuthentication();
 builder.Services.AddResponseCaching();
 builder.Services.AddAntiforgery();
 builder.Services.AddProblemDetails();
+builder.Services.AddScoped<EntryMeter>();
+builder.Services.AddOpenTelemetry()
+    //.Use
+    .WithTracing(tracing => tracing
+        // The rest of your setup code goes here
+        .AddOtlpExporter())
+    .WithMetrics(metrics => metrics
+        .AddMeter(EntryMeter.MeterName)
+        // The rest of your setup code goes here
+        .AddAspNetCoreInstrumentation()
+        .AddConsoleExporter()
+        //.AddOtlpExporter()
+        );
 
 var app = builder.Build();
+//builder.Logging.AddOpenTelemetry(logging =>
+//{
+//    // The rest of your setup code goes here
+//    logging.AddOtlpExporter();
+//});
+
 app.UseExceptionHandler(x =>
 {
     x.Run(async context =>
@@ -21,7 +46,7 @@ app.UseExceptionHandler(x =>
         context.Response.ContentType = "application/json";
 
         var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
-        app.Logger.LogError("Exception: {exception}", contextFeature.Error.GetBaseException().Message);
+        app.Logger.LogError("Exception: {exception}", contextFeature!.Error.GetBaseException().Message);
         if (contextFeature is not null)
         {
             await context.Response.WriteAsJsonAsync(new
@@ -71,6 +96,15 @@ app.UseMiddleware<RequestContextLoggingMiddleware>(app.Logger);
 app.UseResponseCaching();
 app.Run();
 
+//public partial class CacheDependencies
+//{
+//    public IServiceCollection AddRedisCache(this IServiceCollection services)
+//    {
+//        services.AddMemoryCache();
+//        return services;
+//    }
+//}
+
 public class RequestContextLoggingMiddleware
 {
     private const string _correlationIdHeaderName = "X-Correlation-Id";
@@ -101,6 +135,19 @@ public class RequestContextLoggingMiddleware
             _correlationIdHeaderName, out StringValues correlationId);
 
         return correlationId.FirstOrDefault() ?? context.TraceIdentifier;
+    }
+}
+
+public class EntryMeter
+{
+    public Meter Meter { get; private set; }
+    public Counter<int> ReadsCounter { get; private set; }
+    public static readonly string MeterName = "MinhaAplicacao";
+
+    public EntryMeter()
+    {
+        Meter = new Meter(MeterName, "1.0.0");
+        ReadsCounter = Meter.CreateCounter<int>("entry.reads", "Number of account reads");
     }
 }
 

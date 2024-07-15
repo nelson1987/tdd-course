@@ -12,3 +12,11 @@ public class ProductEntityTypeConfiguration : IEntityTypeConfiguration<Account>
                 .IsRequired();
     }
 }
+
+public class AuditLogEntityTypeConfiguration : IEntityTypeConfiguration<AuditLog>
+{
+    public void Configure(EntityTypeBuilder<AuditLog> builder)
+    {
+        builder.HasKey(x => x.Id);
+    }
+}

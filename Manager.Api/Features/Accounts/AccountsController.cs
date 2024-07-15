@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Reflection;
 
 namespace Manager.Api.Features.Accounts;
@@ -12,12 +13,18 @@ public class AccountsController : ControllerBase
 {
     private readonly IAccountRepository _accountRepository;
     private readonly ILogger<AccountsController> _logger;
+    private readonly EntryMeter _entryMeter;
+    private readonly IMemoryCache _cache;
 
     public AccountsController(IAccountRepository accountRepository,
-        ILogger<AccountsController> logger)
+        ILogger<AccountsController> logger,
+        EntryMeter entryMeter,
+        IMemoryCache cache)
     {
         _accountRepository = accountRepository;
         _logger = logger;
+        _entryMeter = entryMeter;
+        _cache = cache;
     }
 
     [Authorize]
@@ -36,8 +43,9 @@ public class AccountsController : ControllerBase
         if (response.IsFailed)
             return BadRequest("Fail to insert account");
 
+        _entryMeter.ReadsCounter.Add(1);
         _logger.LogInformation($"Ended {MethodBase.GetCurrentMethod()}");
-
+        _cache.Set("cachedData", account, TimeSpan.FromMinutes(10));
         return Created("/accounts", response.Value.Id);
         //}
         //catch (Exception ex)
@@ -45,5 +53,22 @@ public class AccountsController : ControllerBase
         //    _logger.LogError("Exception: {exception}", ex.Message);
         //    return Problem(detail: "Tente novamente mais tarde", statusCode: 500);
         //}
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(int id)
+    {
+        if (!_cache.TryGetValue("cachedData", out Account? account))
+        {
+            var accountGet = await _accountRepository.GetById(id);
+            if (accountGet.IsSuccess)
+            {
+                account = accountGet.Value;
+                _cache.Set("cachedData", account, TimeSpan.FromMinutes(10));
+            }
+            else
+                return NotFound();
+        }
+        return Ok(account);
     }
 }
