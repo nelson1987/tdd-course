@@ -1,10 +1,8 @@
 ﻿using FluentResults;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using System.Linq.Expressions;
 
 namespace Manager.Api.Features.Accounts;
-
+/*
 public interface ISpecification<T>
 {
     Expression<Func<T, bool>> Filter { get; }
@@ -81,7 +79,7 @@ public abstract class BaseSpecificationService<TEntity> where TEntity : class
 
     protected ISpecification<TEntity> Specification { get; set; } = null!;
 
-    protected IQueryable<TEntity> GetQuery()
+    public IQueryable<TEntity> GetQuery()
     {
         return SpecificationBuilder<TEntity>
         .GetQuery(_context.Set<TEntity>().AsQueryable(),
@@ -122,6 +120,7 @@ public interface IAccountContext
 
     DatabaseFacade Database { get; }
 }
+*/
 
 public class AccountRepository : IAccountRepository
 {
@@ -134,13 +133,8 @@ public class AccountRepository : IAccountRepository
 
     public async Task<Result<Account>> GetById(int accountId)
     {
-        return await GetAccount(accountId);
-    }
-
-    private async Task<Result<Account>> GetAccount(int accountId)
-    {
-        //var productsBelowFiveDollarsSpecification = new GetProductsLessThanFiveDollars(_writeDatabase, accountId);
-        //var results = productsBelowFiveDollarsSpecification.GetQuery().ToList();
+        //var accountSpecification = new GetProductsLessThanFiveDollars(_context, accountId);
+        //var account = await accountSpecification.GetQuery().FirstOrDefaultAsync();
         var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Id == accountId);
         if (account == null) return Result.Fail("User not found");
         return Result.Ok(account);
