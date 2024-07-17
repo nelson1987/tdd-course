@@ -64,10 +64,9 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         //Act
         HttpResponseMessage result = await CreateAccount(_request, _client);
         var jsonResponse = await result.Content.ReadAsStringAsync();
-        //var response = JsonSerializer.Deserialize<int>(jsonResponse);
         var response = Convert.ToInt32(jsonResponse);
         // Act
-        var getAccount = await _accountRepository.GetById(response);// .FirstOrDefault(x => x.Description == _request.Description);
+        var getAccount = await _accountRepository.GetById(response);
         var account = getAccount.Value;
         // Assert
         account.Should().NotBeNull();
@@ -81,13 +80,11 @@ public class AccountsControllerIntegrationTests : IntegrationTestBase
         //Act
         HttpResponseMessage result = await CreateAccount(_request, _client);
         var jsonResponse = await result.Content.ReadAsStringAsync();
-        //var response = JsonSerializer.Deserialize<int>(jsonResponse);
         var response = Convert.ToInt32(jsonResponse);
         // Act
         var getAccount = await _client.GetAsync($"/accounts/{response}");
         var getAccountJsonResponse = await getAccount.Content.ReadAsStringAsync();
-        var account = System.Text.Json.JsonSerializer.Deserialize<Account>(getAccountJsonResponse,
-                new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        var account = System.Text.Json.JsonSerializer.Deserialize<Account>(getAccountJsonResponse);
         // Assert
         account.Should().NotBeNull();
         account!.Id.Should().NotBe(0);

@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -12,6 +13,7 @@ namespace Manager.Api.Features.Accounts;
 public class AccountsController : ControllerBase
 {
     private readonly IAccountRepository _accountRepository;
+    private readonly IValidator<CreateAccountRequest> _validator;
     private readonly ILogger<AccountsController> _logger;
     private readonly EntryMeter _entryMeter;
     private readonly IMemoryCache _cache;
@@ -19,40 +21,14 @@ public class AccountsController : ControllerBase
     public AccountsController(IAccountRepository accountRepository,
         ILogger<AccountsController> logger,
         EntryMeter entryMeter,
-        IMemoryCache cache)
+        IMemoryCache cache,
+        IValidator<CreateAccountRequest> validator)
     {
         _accountRepository = accountRepository;
         _logger = logger;
         _entryMeter = entryMeter;
         _cache = cache;
-    }
-
-    [Authorize]
-    [HttpPost]
-    public async Task<IActionResult> Post([FromBody] CreateAccountRequest request)
-    {
-        _logger.LogInformation($"Started {MethodBase.GetCurrentMethod()}");
-        //try
-        //{
-        if (string.IsNullOrEmpty(request.Description))
-            return BadRequest("Description is required");
-
-        var account = new Account() { Description = request.Description };
-        var response = await _accountRepository.Insert(account);
-
-        if (response.IsFailed)
-            return BadRequest("Fail to insert account");
-
-        _entryMeter.ReadsCounter.Add(1);
-        _logger.LogInformation($"Ended {MethodBase.GetCurrentMethod()}");
-        _cache.Set("cachedData", account, TimeSpan.FromMinutes(10));
-        return Created("/accounts", response.Value.Id);
-        //}
-        //catch (Exception ex)
-        //{
-        //    _logger.LogError("Exception: {exception}", ex.Message);
-        //    return Problem(detail: "Tente novamente mais tarde", statusCode: 500);
-        //}
+        _validator = validator;
     }
 
     [HttpGet("{id}")]
@@ -70,5 +46,36 @@ public class AccountsController : ControllerBase
                 return NotFound();
         }
         return Ok(account);
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Post([FromBody] CreateAccountRequest command)
+    {
+        _logger.LogInformation($"Started {MethodBase.GetCurrentMethod()}");
+        var validation = _validator.Validate(command);
+        if (validation.IsInvalid())
+            return UnprocessableEntity(validation.ToModelState());
+        //try
+        //{
+        if (string.IsNullOrEmpty(command.Description))
+            return BadRequest("Description is required");
+
+        var account = new Account() { Description = command.Description };
+        var response = await _accountRepository.Insert(account);
+
+        if (response.IsFailed)
+            return BadRequest("Fail to insert account");
+
+        _entryMeter.ReadsCounter.Add(1);
+        _logger.LogInformation($"Ended {MethodBase.GetCurrentMethod()}");
+        _cache.Set("cachedData", account, TimeSpan.FromMinutes(10));
+        return Created("/accounts", response.Value.Id);
+        //}
+        //catch (Exception ex)
+        //{
+        //    _logger.LogError("Exception: {exception}", ex.Message);
+        //    return Problem(detail: "Tente novamente mais tarde", statusCode: 500);
+        //}
     }
 }

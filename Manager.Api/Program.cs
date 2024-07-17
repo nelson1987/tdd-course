@@ -1,15 +1,30 @@
 using Manager.Api.Features;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Primitives;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System.Diagnostics.Metrics;
+using System.IO.Compression;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+builder.Services.AddCors();
+builder.Services.ConfigureHttpJsonOptions(_ => { });
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+        {
+            options.Level = CompressionLevel.Optimal;
+        });
+builder.Services.AddResponseCompression(options =>
+{
+    options.Providers.Add<GzipCompressionProvider>();
+});
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+        .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddRepositories();
@@ -18,25 +33,38 @@ builder.Services.AddResponseCaching();
 builder.Services.AddAntiforgery();
 builder.Services.AddProblemDetails();
 builder.Services.AddScoped<EntryMeter>();
+builder.Services.AddLogging();
 builder.Services.AddOpenTelemetry()
-    //.Use
-    .WithTracing(tracing => tracing
-        // The rest of your setup code goes here
-        .AddOtlpExporter())
-    .WithMetrics(metrics => metrics
+    .ConfigureResource(resource =>
+        resource.AddService("CofeeShop")
+                .AddAttributes(new Dictionary<string, object>
+                {
+                    ["environment.name"] = "production",
+                    ["team.name"] = "backend"
+                })
+    )
+    .WithMetrics(metrics =>
+        metrics
         .AddMeter(EntryMeter.MeterName)
-        // The rest of your setup code goes here
         .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
         .AddConsoleExporter()
-        //.AddOtlpExporter()
-        );
+        .AddOtlpExporter()
+        )
+    .WithTracing(tracing =>
+        tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddEntityFrameworkCoreInstrumentation()
+        .AddConsoleExporter()
+        .AddOtlpExporter());
+builder.Logging.AddOpenTelemetry(logging =>
+{
+    logging.AddOtlpExporter();
+    logging.AddConsoleExporter();
+});
 
 var app = builder.Build();
-//builder.Logging.AddOpenTelemetry(logging =>
-//{
-//    // The rest of your setup code goes here
-//    logging.AddOtlpExporter();
-//});
 
 app.UseExceptionHandler(x =>
 {
@@ -52,7 +80,8 @@ app.UseExceptionHandler(x =>
             await context.Response.WriteAsJsonAsync(new
             {
                 StatusCodes = context.Response.StatusCode,
-                Message = "Internal Server Error"
+                Message = "Internal Server Error",
+                Error = contextFeature.Error.Message
             });
         }
     });
